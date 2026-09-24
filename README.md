@@ -100,6 +100,22 @@ Paneles especializados por rol: control de insumos y cristalería para el salón
 
 ---
 
+## 🏛️ Arquitectura del Sistema y Despliegue (Generado con Archify)
+
+La integración del frontend con la infraestructura en la nube (Vercel CDN), el backend Express y los servicios periféricos ha sido modelada y validada mediante **[Archify](https://github.com/tt-a1i/archify)**:
+
+<div align="center">
+
+| Modo Oscuro | Modo Claro |
+| :---: | :---: |
+| ![Arquitectura SistemaSDM Modo Oscuro](docs/assets/architecture_dark.png) | ![Arquitectura SistemaSDM Modo Claro](docs/assets/architecture_light.png) |
+
+> 💡 **Diagrama Interactivo:** Puedes abrir [`docs/sistemasdm-arquitectura.html`](docs/sistemasdm-arquitectura.html) en tu navegador para interactuar con el lienzo (Zoom, Pan, visualización por capas guiadas y exportación vectorial).
+
+</div>
+
+---
+
 ## 🗂️ Estructura del Código Fuente
 
 ```text
