@@ -43,7 +43,8 @@ const AdminUsuarios = () => {
     const handleSaveUsuario = async (e) => {
         e.preventDefault();
         try {
-            await crearUsuario(nuevoUsuario);
+            const sedeActiva = localStorage.getItem('admin_sede_id') || 1;
+            await crearUsuario({ ...nuevoUsuario, sede_id: Number(sedeActiva) });
             showSuccess('Usuario creado exitosamente');
             setShowModal(false);
             setNuevoUsuario({ nombre: '', usuario: '', password: '', rol: 'Mesera' });
