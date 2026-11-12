@@ -74,4 +74,37 @@ describe('Componente ProtectedRoute', () => {
 
         expect(screen.getByText('Panel de Administración')).toBeInTheDocument();
     });
+
+    it('debe redirigir a /admin/menu si el módulo requerido está desactivado en la sede actual', () => {
+        localStorage.setItem('user', JSON.stringify({ usuario: 'admin', rol: 'Admin' }));
+        localStorage.setItem(
+            'admin_sede_config',
+            JSON.stringify({
+                mod_meseras: 1,
+                mod_chef: 1,
+                mod_alertas: 0,
+                mod_propinas: 0,
+                mod_accesos: 0
+            })
+        );
+
+        render(
+            <MemoryRouter initialEntries={['/propinas']}>
+                <Routes>
+                    <Route
+                        path="/propinas"
+                        element={
+                            <ProtectedRoute allowedRoles={['Admin', 'Mesera']} requiredModule="mod_propinas">
+                                <div>Vista de Propinas</div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="/admin/menu" element={<div>Menú Admin Sede</div>} />
+                </Routes>
+            </MemoryRouter>
+        );
+
+        expect(screen.queryByText('Vista de Propinas')).not.toBeInTheDocument();
+        expect(screen.getByText('Menú Admin Sede')).toBeInTheDocument();
+    });
 });

@@ -21,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import Layout from '../components/Layout';
 import { getAsignaciones, saveAsignaciones } from '../services/asignacionesService';
+import { getSedes } from '../services/sedesService';
 import { crearUsuario } from '../services/usuariosService';
 import { showSuccess, showError } from '../utils/alerts';
 import { ArrowLeft, Save, Pin, RefreshCw, Plus, X, Info } from 'lucide-react';
@@ -153,9 +154,15 @@ const Column = ({ id, title, items, color, bgHover, disabled, onTogglePin }) => 
   );
 };
 
+const COLORES_SEDE = ['#10B981', '#3B82F6', '#8B5CF6', '#F59E0B', '#EC4899', '#14B8A6'];
+
 const TableroAsignaciones = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [sedesList, setSedesList] = useState([
+    { id: 1, nombre: 'Sede Centro' },
+    { id: 2, nombre: 'Sede Norte' }
+  ]);
   
   // Estado agrupado por contenedores (fundamental para dnd-kit)
   const [asignaciones, setAsignaciones] = useState({
@@ -184,14 +191,31 @@ const TableroAsignaciones = () => {
   const loadAsignaciones = async () => {
     try {
       setLoading(true);
-      const data = await getAsignaciones();
-      
-      const initialData = { 'col_null': [], 'col_1': [], 'col_2': [] };
+      const [data, sedesData] = await Promise.all([
+        getAsignaciones(),
+        getSedes().catch(() => [
+          { id: 1, nombre: 'Sede Centro' },
+          { id: 2, nombre: 'Sede Norte' }
+        ])
+      ]);
+
+      const sedesActivas = sedesData && sedesData.length > 0
+        ? sedesData
+        : [{ id: 1, nombre: 'Sede Centro' }, { id: 2, nombre: 'Sede Norte' }];
+      setSedesList(sedesActivas);
+
+      const initialData = { 'col_null': [] };
+      sedesActivas.forEach(s => {
+        initialData[`col_${s.id}`] = [];
+      });
+
       if (data.asignaciones) {
         data.asignaciones.forEach(a => {
           const container = a.sede_asignada === null ? 'col_null' : `col_${a.sede_asignada}`;
           if (initialData[container]) {
             initialData[container].push(a);
+          } else {
+            initialData['col_null'].push({ ...a, sede_asignada: null });
           }
         });
       }
@@ -236,26 +260,18 @@ const TableroAsignaciones = () => {
 
   const handleResetBoard = () => {
     setAsignaciones((prev) => {
-      const newNull = [...prev['col_null']];
-      const newCol1 = [];
-      const newCol2 = [];
-
-      prev['col_1'].forEach(a => {
-        if (a.fijado) newCol1.push(a);
-        else newNull.push({ ...a, sede_asignada: null });
-      });
-
-      prev['col_2'].forEach(a => {
-        if (a.fijado) newCol2.push(a);
-        else newNull.push({ ...a, sede_asignada: null });
+      const nextState = { 'col_null': [...(prev['col_null'] || [])] };
+      Object.keys(prev).forEach((key) => {
+        if (key === 'col_null') return;
+        nextState[key] = [];
+        prev[key].forEach((a) => {
+          if (a.fijado) nextState[key].push(a);
+          else nextState['col_null'].push({ ...a, sede_asignada: null });
+        });
       });
 
       setHasChanges(true);
-      return {
-        'col_null': newNull,
-        'col_1': newCol1,
-        'col_2': newCol2
-      };
+      return nextState;
     });
   };
 
@@ -276,7 +292,7 @@ const TableroAsignaciones = () => {
 
   // Encuentra a qué contenedor pertenece un item (o si es el propio contenedor)
   const findContainer = (idStr) => {
-    if (['col_null', 'col_1', 'col_2'].includes(idStr)) {
+    if (Object.prototype.hasOwnProperty.call(asignaciones, idStr)) {
       return idStr;
     }
     return Object.keys(asignaciones).find((key) =>
@@ -362,7 +378,7 @@ const TableroAsignaciones = () => {
   };
 
   const activeTrabajador = activeId 
-    ? [...asignaciones['col_null'], ...asignaciones['col_1'], ...asignaciones['col_2']].find(a => a.trabajador_id.toString() === activeId.toString()) 
+    ? Object.values(asignaciones).flat().find(a => a.trabajador_id.toString() === activeId.toString()) 
     : null;
 
   return (
@@ -426,30 +442,27 @@ const TableroAsignaciones = () => {
             <Column 
               id="col_null" 
               title="Sin Asignar" 
-              items={asignaciones['col_null']} 
+              items={asignaciones['col_null'] || []} 
               color="#9CA3AF" 
               bgHover="#9CA3AF15"
               disabled={!isAdmin} 
               onTogglePin={isAdmin ? handleTogglePin : null}
             />
-            <Column 
-              id="col_1" 
-              title="Sede Centro" 
-              items={asignaciones['col_1']} 
-              color="#10B981" 
-              bgHover="#10B98115"
-              disabled={!isAdmin} 
-              onTogglePin={isAdmin ? handleTogglePin : null}
-            />
-            <Column 
-              id="col_2" 
-              title="Sede Norte" 
-              items={asignaciones['col_2']} 
-              color="#3B82F6" 
-              bgHover="#3B82F615"
-              disabled={!isAdmin} 
-              onTogglePin={isAdmin ? handleTogglePin : null}
-            />
+            {sedesList.map((sede, idx) => {
+              const colColor = COLORES_SEDE[idx % COLORES_SEDE.length];
+              return (
+                <Column
+                  key={sede.id}
+                  id={`col_${sede.id}`}
+                  title={sede.nombre}
+                  items={asignaciones[`col_${sede.id}`] || []}
+                  color={colColor}
+                  bgHover={`${colColor}15`}
+                  disabled={!isAdmin}
+                  onTogglePin={isAdmin ? handleTogglePin : null}
+                />
+              );
+            })}
           </div>
 
           <DragOverlay>

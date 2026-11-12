@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Leaf, Fish, ArrowLeft, MapPin } from 'lucide-react';
 import { getCurrentUser } from '../services/authService';
+import { getSedeById, obtenerConfigSedeLocal, guardarSedeActivaLocal } from '../services/sedesService';
 
 const ChefMenu = () => {
     const navigate = useNavigate();
     const user = getCurrentUser();
     const isAdmin = user?.rol === 'Admin';
+    const [configSede, setConfigSede] = useState(() => obtenerConfigSedeLocal());
+
+    useEffect(() => {
+        const cargarConfig = async () => {
+            const sedeId = isAdmin ? (localStorage.getItem('admin_sede_id') || 1) : (user?.sede_id || 1);
+            try {
+                const sedeData = await getSedeById(sedeId);
+                if (sedeData) {
+                    if (isAdmin) guardarSedeActivaLocal(sedeData);
+                    setConfigSede({
+                        mod_chef: sedeData.mod_chef ?? 1
+                    });
+                }
+            } catch (error) {
+                console.error('Error cargando módulos de la sede:', error);
+            }
+        };
+        cargarConfig();
+    }, [isAdmin, user?.sede_id]);
 
     return (
         <Layout title="Menú del Chef">
@@ -19,23 +39,27 @@ const ChefMenu = () => {
                     </button>
                 </div>
             )}
-            
+
             <div className="admin-menu-grid">
-                <button className="admin-menu-card" onClick={() => navigate('/chef/inventario/Verduras')}>
-                    <div className="admin-menu-icon">
-                        <Leaf size={48} />
-                    </div>
-                    <h2>Inventario Verduras</h2>
-                    <p>Gestionar stock de verduras</p>
-                </button>
-                
-                <button className="admin-menu-card" onClick={() => navigate('/chef/inventario/Pescados')}>
-                    <div className="admin-menu-icon">
-                        <Fish size={48} />
-                    </div>
-                    <h2>Inventario Pescados</h2>
-                    <p>Gestionar stock de pescados</p>
-                </button>
+                {Number(configSede.mod_chef) === 1 && (
+                    <>
+                        <button className="admin-menu-card" onClick={() => navigate('/chef/inventario/Verduras')}>
+                            <div className="admin-menu-icon">
+                                <Leaf size={48} />
+                            </div>
+                            <h2>Inventario Verduras</h2>
+                            <p>Gestionar stock de verduras</p>
+                        </button>
+
+                        <button className="admin-menu-card" onClick={() => navigate('/chef/inventario/Pescados')}>
+                            <div className="admin-menu-icon">
+                                <Fish size={48} />
+                            </div>
+                            <h2>Inventario Pescados</h2>
+                            <p>Gestionar stock de pescados</p>
+                        </button>
+                    </>
+                )}
 
                 {!isAdmin && (
                     <button className="admin-menu-card" onClick={() => navigate('/asignaciones')}>

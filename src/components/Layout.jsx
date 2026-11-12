@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LogOut, User as UserIcon, ChevronDown, Sun, Moon, Bell, CheckCircle } from 'lucide-react';
 import { getCurrentUser, logout } from '../services/authService';
 import { getAlertas, markAlertaAsRead } from '../services/alertaService';
+import { obtenerConfigSedeLocal } from '../services/sedesService';
 import { useNavigate } from 'react-router-dom';
 
 const Layout = ({ children, title }) => {
     const user = getCurrentUser();
     const navigate = useNavigate();
+    const configSede = obtenerConfigSedeLocal();
+    const alertasHabilitadas = user?.rol === 'Admin' && Number(configSede.mod_alertas) === 1;
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const [alertas, setAlertas] = useState([]);
@@ -21,10 +24,12 @@ const Layout = ({ children, title }) => {
     }, [theme]);
 
     useEffect(() => {
-        if (user?.rol === 'Admin') {
+        if (alertasHabilitadas) {
             loadAlertas();
+        } else {
+            setAlertas([]);
         }
-    }, [user?.rol]);
+    }, [alertasHabilitadas]);
 
     const loadAlertas = async () => {
         try {
@@ -94,7 +99,7 @@ const Layout = ({ children, title }) => {
                 </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ position: 'relative' }} ref={notifRef}>
-                            {user?.rol === 'Admin' && (
+                            {alertasHabilitadas && (
                                 <button 
                                     className="btn-icon" 
                                     onClick={() => setNotifOpen(!notifOpen)}
@@ -108,7 +113,7 @@ const Layout = ({ children, title }) => {
                                 </button>
                             )}
                             
-                            {notifOpen && user?.rol === 'Admin' && (
+                            {notifOpen && alertasHabilitadas && (
                                 <div className="notif-menu">
                                     <div className="dropdown-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span style={{ fontWeight: 600 }}>Alertas Recientes</span>

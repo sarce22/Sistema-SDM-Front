@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentUser } from '../services/authService';
 
-const DEFAULT_TIMEOUT_MS = 30 * 1000; // 30 segundos (configurable para pruebas)
+const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutos de inactividad
 const THROTTLE_MS = 1000; // Throttling para eventos de alta frecuencia
 
 /**

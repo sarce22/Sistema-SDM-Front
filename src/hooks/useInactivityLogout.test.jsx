@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('useInactivityLogout / InactivityHandler Modal', () => {
-    const TIMEOUT = 30 * 1000; // 30 segundos
+    const TIMEOUT = 5 * 60 * 1000; // 5 minutos
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -29,40 +29,40 @@ describe('useInactivityLogout / InactivityHandler Modal', () => {
     it('no debe mostrar el modal si no hay usuario autenticado', () => {
         render(
             <MemoryRouter initialEntries={['/admin']}>
-                <InactivityHandler timeoutMs={TIMEOUT} />
+                <InactivityHandler />
             </MemoryRouter>
         );
 
         act(() => {
-            vi.advanceTimersByTime(60 * 1000);
+            vi.advanceTimersByTime(6 * 60 * 1000);
         });
 
         expect(screen.queryByText(/Sesión cerrada por inactividad/i)).not.toBeInTheDocument();
         expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    it('debe mostrar el modal tras cumplirse el tiempo de inactividad y redirigir al hacer clic en Aceptar', () => {
+    it('debe mostrar el modal tras cumplirse el tiempo de inactividad (5 min) y redirigir al hacer clic en Aceptar', () => {
         localStorage.setItem('token', 'fake-jwt');
         localStorage.setItem('user', JSON.stringify({ usuario: 'chef1', rol: 'Chef' }));
 
         render(
             <MemoryRouter initialEntries={['/chef']}>
-                <InactivityHandler timeoutMs={TIMEOUT} />
+                <InactivityHandler />
             </MemoryRouter>
         );
 
-        // Avanzamos 20 segundos (aún no debe aparecer el modal)
+        // Avanzamos 4 minutos (aún no debe aparecer el modal)
         act(() => {
-            vi.advanceTimersByTime(20 * 1000);
+            vi.advanceTimersByTime(4 * 60 * 1000);
         });
 
         expect(screen.queryByText(/Sesión cerrada por inactividad/i)).not.toBeInTheDocument();
         expect(mockNavigate).not.toHaveBeenCalled();
         expect(localStorage.getItem('token')).toBe('fake-jwt');
 
-        // Completamos los 30 segundos
+        // Completamos los 5 minutos
         act(() => {
-            vi.advanceTimersByTime(10 * 1000);
+            vi.advanceTimersByTime(1 * 60 * 1000);
         });
 
         // Credenciales borradas
@@ -90,9 +90,9 @@ describe('useInactivityLogout / InactivityHandler Modal', () => {
             </MemoryRouter>
         );
 
-        // Pasan 20 segundos
+        // Pasan 4 minutos
         act(() => {
-            vi.advanceTimersByTime(20 * 1000);
+            vi.advanceTimersByTime(4 * 60 * 1000);
         });
 
         // Interacción del usuario
@@ -100,18 +100,18 @@ describe('useInactivityLogout / InactivityHandler Modal', () => {
             window.dispatchEvent(new MouseEvent('mousedown'));
         });
 
-        // Pasan otros 20 segundos (total 40s acumulados, pero solo 20s desde la interacción)
+        // Pasan otros 4 minutos (total 8 min acumulados, pero solo 4 min desde la interacción)
         act(() => {
-            vi.advanceTimersByTime(20 * 1000);
+            vi.advanceTimersByTime(4 * 60 * 1000);
         });
 
         // El modal NO debe haber aparecido todavía
         expect(screen.queryByText(/Sesión cerrada por inactividad/i)).not.toBeInTheDocument();
         expect(localStorage.getItem('token')).toBe('fake-jwt');
 
-        // Pasan 10 segundos más (total 30s desde la interacción)
+        // Pasa 1 minuto más (total 5 min desde la interacción)
         act(() => {
-            vi.advanceTimersByTime(10 * 1000);
+            vi.advanceTimersByTime(1 * 60 * 1000);
         });
 
         // Ahora sí aparece el modal

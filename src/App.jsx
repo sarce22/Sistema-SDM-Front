@@ -37,25 +37,25 @@ function App() {
                 } />
 
                 <Route path="/admin/alertas" element={
-                    <ProtectedRoute allowedRoles={['Admin']}>
+                    <ProtectedRoute allowedRoles={['Admin']} requiredModule="mod_alertas">
                         <AdminAlerts />
                     </ProtectedRoute>
                 } />
 
                 <Route path="/admin/usuarios" element={
-                    <ProtectedRoute allowedRoles={['Admin']}>
+                    <ProtectedRoute allowedRoles={['Admin']} requiredModule="mod_accesos">
                         <AdminUsuarios />
                     </ProtectedRoute>
                 } />
 
                 <Route path="/propinas" element={
-                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']}>
+                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']} requiredModule="mod_propinas">
                         <AdminPropinas />
                     </ProtectedRoute>
                 } />
 
                 <Route path="/propinas/:id" element={
-                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']}>
+                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']} requiredModule="mod_propinas">
                         <PropinasCalculadora />
                     </ProtectedRoute>
                 } />
@@ -67,7 +67,7 @@ function App() {
                 } />
 
                 <Route path="/chef/inventario/:categoria" element={
-                    <ProtectedRoute allowedRoles={['Admin', 'Chef']}>
+                    <ProtectedRoute allowedRoles={['Admin', 'Chef']} requiredModule="mod_chef">
                         <ChefInventory />
                     </ProtectedRoute>
                 } />
@@ -79,7 +79,7 @@ function App() {
                 } />
 
                 <Route path="/mesera/inventario" element={
-                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']}>
+                    <ProtectedRoute allowedRoles={['Admin', 'Mesera']} requiredModule="mod_meseras">
                         <MeseraInventory />
                     </ProtectedRoute>
                 } />

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { getCurrentUser } from '../services/authService';
+import { obtenerConfigSedeLocal } from '../services/sedesService';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, allowedRoles, requiredModule }) => {
     const user = getCurrentUser();
 
     if (!user) {
@@ -20,6 +21,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
                 return <Navigate to="/admin" replace />;
             default:
                 return <Navigate to="/login" replace />;
+        }
+    }
+
+    if (requiredModule) {
+        const configSede = obtenerConfigSedeLocal();
+        if (Number(configSede[requiredModule]) === 0) {
+            const fallbackPath = user.rol === 'Admin' ? '/admin/menu' : user.rol === 'Chef' ? '/chef' : '/mesera';
+            return <Navigate to={fallbackPath} replace />;
         }
     }
 
