@@ -222,16 +222,16 @@ const MeseraInventory = () => {
 
     return (
         <Layout title="Inventario de Meseras">
-            <div className="dashboard-header">
-                <div style={{ display: 'flex', gap: '16px' }}>
+            <div className="dashboard-header" style={{ flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <button className="btn-secondary" onClick={() => navigate(-1)}>
                         <ArrowLeft size={16} />
                         <span>Volver al Menú</span>
                     </button>
-                    <h2>Lista de Ítems</h2>
+                    <h2 style={{ margin: 0 }}>Lista de Ítems</h2>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                    <div className="input-wrapper" style={{ minWidth: '250px' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end' }}>
+                    <div className="input-wrapper" style={{ flex: '1 1 200px', minWidth: '180px' }}>
                         <Search size={18} className="input-icon" />
                         <input 
                             type="text" 
