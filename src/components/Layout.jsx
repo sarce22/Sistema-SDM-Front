@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, User as UserIcon, ChevronDown, Sun, Moon, Bell, CheckCircle } from 'lucide-react';
+import { LogOut, User as UserIcon, ChevronDown, Bell, CheckCircle } from 'lucide-react';
 import { getCurrentUser, logout } from '../services/authService';
 import { getAlertas, markAlertaAsRead } from '../services/alertaService';
 import { obtenerConfigSedeLocal } from '../services/sedesService';
@@ -14,14 +14,8 @@ const Layout = ({ children, title }) => {
     const [notifOpen, setNotifOpen] = useState(false);
     const [alertas, setAlertas] = useState([]);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const dropdownRef = useRef(null);
     const notifRef = useRef(null);
-
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme]);
 
     useEffect(() => {
         if (alertasHabilitadas) {
@@ -81,10 +75,6 @@ const Layout = ({ children, title }) => {
 
     const confirmLogout = () => {
         logout();
-    };
-
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     };
 
     return (
@@ -154,13 +144,6 @@ const Layout = ({ children, title }) => {
                             )}
                         </div>
 
-                        <button 
-                            className="btn-icon" 
-                            onClick={toggleTheme}
-                            title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                        >
-                            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                        </button>
                         <div className="user-menu-container" ref={dropdownRef}>
                             <button 
                                 className="user-menu-btn" 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, LogIn, Delete, Sun, Moon } from 'lucide-react';
+import { User, Lock, LogIn, Delete } from 'lucide-react';
 import { showSuccess, showError } from '../utils/alerts';
 import { login } from '../services/authService';
 
@@ -10,17 +10,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [recentUsers, setRecentUsers] = useState([]);
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
     const [activeKey, setActiveKey] = useState(null);
-
-    useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    };
 
     useEffect(() => {
         const stored = localStorage.getItem('recentUsers');
@@ -130,31 +120,6 @@ const Login = () => {
 
     return (
         <div className="login-container" style={{ position: 'relative' }}>
-            <button
-                type="button"
-                className="btn-icon"
-                onClick={toggleTheme}
-                title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    padding: '10px',
-                    borderRadius: '50%',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-color)',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--text-primary)',
-                    zIndex: 10
-                }}
-            >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-
             <div className="login-card">
                 <div className="login-header">
                     <h1>SistemaSDM</h1>
